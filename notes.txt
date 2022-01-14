@@ -1,0 +1,10 @@
+UserRuntimeService
+- LocalLoginAsync
+  - Get the lockout state from the repository
+  - Check and see if the LockoutUntil is greater than current time, if so, return a locked out status
+  - if still going, try to log in as the user
+    - if the login in successful, reset the login failure
+    - if the login fails, need to CheckAndUpdateLockoutState
+      - increment login fails count
+      - if fail count is greater than max allowed, set the account to locked out and update the cache, also return IsLockedOut as true
+      - else just return IsNotAllowed as true

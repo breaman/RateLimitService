@@ -2,14 +2,8 @@ namespace StokesTest
 {
     public interface IRateLimitingService
     {
-        bool CheckLockoutState(ServiceEnum service);
+        RedisCacheRateLimitLease CheckLockoutState(RateLimitTypeEnum rateLimitType, bool loginSuccessful);
         // void ReadFromCache();
         // void WriteToCache();
-    }
-
-    public enum ServiceEnum
-    {
-        PushNotification,
-        Login
     }
 }

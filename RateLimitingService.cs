@@ -6,30 +6,31 @@ namespace StokesTest
 {
     public class RateLimitingService : IRateLimitingService
     {
-        public AggregatedRateLimiter<string> RateLimiter { get; }
-        public RateLimitingService(AggregatedRateLimiter<string> rateLimiter)
+        public AggregatedRateLimiter<RateLimitInput> RateLimiter { get; }
+        public RateLimitingService(AggregatedRateLimiter<RateLimitInput> rateLimiter)
         {
             RateLimiter = rateLimiter;
         }
 
-        public bool CheckLockoutState(ServiceEnum service)
+        public RedisCacheRateLimitLease CheckLockoutState(RateLimitTypeEnum rateLimitType, bool loginSuccessful)
         {
-            bool isLockedOut = true;
-            switch (service)
+            // need to somehow know what attempt number this was
+            RedisCacheRateLimitLease redisCacheRateLimiterLease = null;
+            switch (rateLimitType)
             {
-                case ServiceEnum.Login:
-                case ServiceEnum.PushNotification:
-                    isLockedOut = GetStrictLockoutState(service);
+                case RateLimitTypeEnum.Login:
+                case RateLimitTypeEnum.PushNotification:
+                    redisCacheRateLimiterLease = GetStrictLockoutState(rateLimitType, loginSuccessful ? 0 : 1);
                     break;
             }
 
-            return isLockedOut;
+            return redisCacheRateLimiterLease;
         }
 
-        private bool GetStrictLockoutState(ServiceEnum service)
+        private RedisCacheRateLimitLease GetStrictLockoutState(RateLimitTypeEnum rateLimitType, int attemptNumber)
         {
-            var result = RateLimiter.Acquire(service.ToString(), 1);
-            return result.IsAcquired;
+            var rateLimitInput = new RateLimitInput { RateLimitType = rateLimitType, SubjectId = "2" };
+            return RateLimiter.Acquire(rateLimitInput, attemptNumber) as RedisCacheRateLimitLease;
         }
     }
 }
