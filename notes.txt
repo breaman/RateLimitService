@@ -8,3 +8,7 @@ UserRuntimeService
       - increment login fails count
       - if fail count is greater than max allowed, set the account to locked out and update the cache, also return IsLockedOut as true
       - else just return IsNotAllowed as true
+
+
+Just need this so i can remember how to run redis
+docker run --rm --name stokes-redis -d -p 6379:6379 redis
